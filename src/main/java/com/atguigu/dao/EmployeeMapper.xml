@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.EmployeeMapper">
+
+
+    <!--List<Employee> queryEmpsBydId(Integer id);-->
+    <select id="queryEmpsBydId" resultType="Employee">
+        SELECT * FROM ssmbuild.tbl_emp WHERE d_id = #{id}
+    </select>
+
+    <!--查找所有员工信息，同时查询出他们所在的部门-->
+    <!--List<Employee> queryAllEmps();-->
+    <!--<select id="queryAllEmps" resultMap="EmpAndDeptLimit">
+        SELECT * FROM ssmbuild.tbl_emp
+    </select>-->
+
+    <select id="queryAllEmps" resultMap="EmpAndDeptLimit">
+        SELECT e.emp_id,e.emp_name,e.gender,e.email,d.dept_id,d.dept_name
+          FROM tbl_emp e
+          LEFT JOIN tbl_dept d ON e.d_id = d.dept_id
+    </select>
+
+    <!--*****************resultMap区******************-->
+
+    <!--这个map只会查询出每个dept的dept_id和dept_name-->
+    <resultMap id="EmpAndDeptLimit" type="Employee">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="gender" property="gender"></result>
+        <result column="email" property="email"></result>
+        <result column="dept_Id" property="dId"></result>
+        <association property="department" javaType="com.atguigu.bean.Department">
+            <id column="dept_id" property="deptId"></id>
+            <result column="dept_name" property="deptName"></result>
+        </association>
+    </resultMap>
+
+    <!--这个是能查出来每个deptdept_id和dept_name和该dept中所有的emps-->
+    <resultMap id="EmpAndDept" type="Employee">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="gender" property="gender"></result>
+        <result column="email" property="email"></result>
+        <association property="department"
+                     select="com.atguigu.dao.DepartmentMapper.queryById"
+                     column="d_id"></association>
+    </resultMap>
+
+    <!--*****************resultMap区******************-->
+
+    <!--查找所有员工信息，同时查询出他们所在的部门-->
+    <!--Employee queryEmpById(Integer id);-->
+    <select id="queryEmpById" resultMap="EmpAndDeptLimit">
+          SELECT e.emp_id,e.emp_name,e.gender,e.email,d.dept_id,d.dept_name
+              FROM tbl_emp e
+              LEFT JOIN tbl_dept d ON e.d_id = d.dept_id
+              WHERE e.emp_id = ${id}
+    </select>
+
+    <!--int addEmp(Employee employee);-->
+    <insert id="addEmp">
+        insert into ssmbuild.tbl_emp (emp_name, gender, email, d_id)
+                values (#{empName},#{gender},#{email},#{dId});
+    </insert>
+
+    <!--int deleteEmpById(Integer id);-->
+    <delete id="deleteEmpById">
+        DELETE FROM ssmbuild.tbl_emp WHERE emp_id = #{id}
+    </delete>
+
+    <!--int deleteEmpBatch(List<Integer> list);-->
+
+    <delete id="deleteEmpBatch">
+        DELETE FROM ssmbuild.tbl_emp WHERE emp_id IN #{list}
+    </delete>
+
+    <!--int updateEmp(Employee employee);-->
+    <update id="updateEmp">
+
+        UPDATE ssmbuild.tbl_emp
+        <set>
+            <if test="empName != null">
+                emp_name = #{empName},
+            </if>
+            <if test="gender != null">
+                gender = #{gender},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="dId != null">
+                d_id = #{dId},
+            </if>
+        </set>
+        where emp_id = #{empId}
+    </update>
+
+    <!--int selectEmpByempName(String empName);-->
+    <select id="selectEmpByempName" resultType="Employee">
+        SELECT * FROM ssmbuild.tbl_emp WHERE emp_name = #{empName}
+    </select>
+
+
+</mapper>

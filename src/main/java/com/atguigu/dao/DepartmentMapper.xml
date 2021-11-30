@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.dao.DepartmentMapper">
+
+    <!--List<Department> queryAll();-->
+    <select id="queryAll" resultType="Department">
+        SELECT * FROM ssmbuild.tbl_dept;
+    </select>
+
+    <!--Department queryById(Integer id);-->
+    <select id="queryById" resultMap="allEmpsWithDept">
+        SELECT * from ssmbuild.tbl_dept WHERE tbl_dept.dept_id = #{id}
+    </select>
+
+    <!--int addDept(Department department);-->
+    <insert id="addDept">
+        INSERT INTO ssmbuild.tbl_dept(dept_name) VALUES (#{deptName})
+    </insert>
+
+    <!--int deleteDeptById(Integer id);-->
+    <delete id="deleteDeptById">
+        DELETE FROM ssmbuild.tbl_dept WHERE tbl_dept.dept_id = #{id}
+    </delete>
+
+    <!--int updateDept(Department department);-->
+    <update id="updateDept">
+        UPDATE ssmbuild.tbl_dept SET dept_name = #{deptName} where dept_id = #{deptId}
+    </update>
+
+    <!--Department queryDeptWithAllEmps(Integer id);-->
+
+    <resultMap id="allEmpsWithDept" type="Department">
+        <id column="dept_id" property="deptId"></id>
+        <result column="dept_name" property="deptName"></result>
+        <collection property="employees"
+                    select="com.atguigu.dao.EmployeeMapper.queryEmpsBydId" column="dept_id">
+        </collection>
+    </resultMap>
+
+    <select id="queryDeptWithAllEmps" resultMap="allEmpsWithDept">
+        SELECT * FROM ssmbuild.tbl_dept WHERE dept_id = #{id}
+    </select>
+
+</mapper>
